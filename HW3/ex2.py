@@ -1,37 +1,47 @@
 import hashlib
 import itertools
-import string
-from timeit import default_timer as timer
+import sys
+import time
 
-start = timer()
-def iterate(text, dictionary):
-    ls = []
-    for i in text:
-        ls.append(dictionary.get(i))
-    return ls
+def reverse_hashes():
 
-ls_lower = list(string.ascii_lowercase)
-ls_digits = list(string.digits)
-ls_chars = ls_lower + ls_digits
-iter_set = list(itertools.product(ls_chars, repeat = 20))
+    with open('hash5.txt', 'r') as hash_file:
+        hashes = [line.strip() for line in hash_file.readlines()]
+        
+    charset = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    password_length = 5
 
-dict_h_pt = {}
-plaintext_ls = []
-hashed_ls = []
-for strings in iter_set:
-    plaintext = ''.join(strings)
-    # plaintext_ls.append(plaintext)
+    # Generate all possible combinations of characters
+    combinations = itertools.product(charset, repeat=password_length)
 
-    hashed = ''.join(hashlib.md5(plaintext.encode()).hexdigest())
-    # hashed_ls.append(hashed)
+    start_time = time.time()
 
-    dict_h_pt[hashed] = plaintext
+    for password in combinations:
+        password_str = ''.join(password)
 
-import hashlib
+        # Calculate the hash of the generated password
+        hashed_password = hashlib.md5(password_str.encode()).hexdigest()
 
-plaintext = "Rainbows"
+        if hashed_password in hashes:
+            print(f"Hash found: {hashed_password} corresponds to password: {password_str}")
 
-result = hashlib.md5(plaintext.encode())
+    end_time = time.time()
+    elapsed_time = end_time - start_time
 
-print(result.hexdigest())
+    print(f"Total computation time: {elapsed_time} seconds")
+
+if __name__ == '__main__':
+    reverse_hashes()
+
+
+
+
+
+
+
+ #f = open('hash5.txt', 'r')
+    #hashtext = f.read()
+    #f.close()
+
+
     
