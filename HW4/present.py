@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-
 # Present skeleton file for 50.042 FCS
-
 
 # constants
 FULLROUND = 31
@@ -10,59 +8,113 @@ FULLROUND = 31
 sbox = [0xC, 0x5, 0x6, 0xB, 0x9, 0x0, 0xA, 0xD,
         0x3, 0xE, 0xF, 0x8, 0x4, 0x7, 0x1, 0x2]
 
-# PLayer
+# pLayer, values represent p(i)
 pmt = [0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51,
        4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54, 7, 23, 39, 55,
        8, 24, 40, 56, 9, 25, 41, 57, 10, 26, 42, 58, 11, 27, 43, 59,
        12, 28, 44, 60, 13, 29, 45, 61, 14, 30, 46, 62, 15, 31, 47, 63]
 
 # Rotate left: 0b1001 --> 0b0011
-
-
-def rol(val, r_bits, max_bits): return \
+def rol(val, r_bits, max_bits): 
+    
+    return \
     (val << r_bits % max_bits) & (2**max_bits - 1) | \
     ((val & (2**max_bits - 1)) >> (max_bits - (r_bits % max_bits)))
 
 # Rotate right: 0b1001 --> 0b1100
-
-
 def ror(val, r_bits, max_bits): return \
     ((val & (2**max_bits - 1)) >> r_bits % max_bits) | \
     (val << (max_bits - (r_bits % max_bits)) & (2**max_bits - 1))
 
-
 def genRoundKeys(key):
-    pass
+    
+    RoundKeys = [32] #index 0
+    key_register = key
 
+    for round_count in range(1,FULLROUND+2): #get round keys k1 to k32
+        RoundKeys.append(key_register >> 16) #shift right to get k79...k16
+        key_register = rol(key_register,61,80)
 
+        first_4_bits = rol(key_register,4,80) #get 4 bits
+        first_4_bits = first_4_bits & 0XF #mask
+
+        first_4_bits_sBox = sbox[first_4_bits] #output = 0b1100
+        first_4_bits_sBox = first_4_bits_sBox << 76 #get 80 bits
+        
+        key_register = (key_register ^ (first_4_bits << 4*19)) | first_4_bits_sBox
+        key_register = key_register ^ (round_count << 15)
+
+    return RoundKeys
+
+# states are 64 bits, in big endian order i.e MSB at index 0 
+# encryption
 def addRoundKey(state, Ki):
-    pass
-
+    return state^Ki
 
 def sBoxLayer(state):
-    pass
+    
+    output = 0
+    for i in range(len(sbox)):
+        index = state & 0XF # mask the rest
+        output = sbox[index] << 4*i | output # concatenate words
+        state = state >> 4 # move to next 4 bits
 
+    return output
 
 def pLayer(state):
-    pass
 
+    output = 0
+    for i in range(len(pmt)):
+        bit_state = state & 0b1 # bit state at left most bit
+        position = bit_state << pmt[i] # fill rightwards
+        output = position | output # concatenate
+        state = state >> 1 # shift right to make next bit the most left bit
+    
+    return output
 
 def present_round(state, roundKey):
+    
+    state = addRoundKey(state,roundKey)
+    state = sBoxLayer(state)
+    state = pLayer(state)
+
     return state
-
-
-def present_inv_round(state, roundKey):
-    return state
-
 
 def present(plain, key):
     K = genRoundKeys(key)
+ 
     state = plain
     for i in range(1, FULLROUND + 1):
         state = present_round(state, K[i])
     state = addRoundKey(state, K[32])
     return state
 
+# decryption, i.e inverse functions
+def sBoxLayer_inv(state):
+    output = 0
+    for i in range(len(sbox)):
+        index = state & 0xF
+        output = sbox.index(index) << 4*i | output
+        state = state >> 4
+
+    return output
+
+def pLayer_inv(state):
+    output = 0
+    for i in range(len(pmt)):
+        bit_state = state & 0b1
+        old_position = bit_state << pmt.index(i)
+        output = old_position | output
+        state = state >> 1
+
+    return output
+
+def present_inv_round(state, roundKey):
+    state = pLayer_inv(state)
+    state = sBoxLayer_inv(state)
+    state = addRoundKey(state,roundKey)
+
+    return state
 
 def present_inv(cipher, key):
     K = genRoundKeys(key)
