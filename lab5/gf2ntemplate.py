@@ -4,25 +4,101 @@
 import copy
 class Polynomial2:
     def __init__(self,coeffs):
+        self.coeffs = coeffs
         pass
 
     def add(self,p2):
+        output = []
+        polynomial_1, polynomial_2 = deepcopy(self.coeffs), deepcopy(p2.coeffs)
+        polynomial_1_len, polynomial_2_len = len(polynomial_1),len(polynomial_2)
+
+        longer = max(polynomial_2_len,polynomial_1_len)
+
+        for i in range(longer):
+            try: output.append(polynomial_1[i] ^ polynomial_2[i])
+            except IndexError:
+                if polynomial_1_len < polynomial_2_len: 
+                    output.append(polynomial_2[i] ^ 0)
+
+                else : output.append(polynomial_1[i] ^ 0)
+
+        return Polynomial2(output)      
         pass
 
     def sub(self,p2):
+        return self.add(p2)
         pass
 
     def mul(self,p2,modp=None):
+        output = []
+
+        output.append(p2)
+
+        for i in range(1, len(self.coeffs)):
+            MSB_output = output[-1]
+            try:
+                if MSB_output.coeffs.index(1) > -1:
+                    MSB_shifted = MSB_output.shift_right()
+
+                    if modp:
+                        result = MSB_shifted.modp(modp)
+                        output.append(result)
+                    else:
+                        MSB_shifted = MSB_output.shift_right()
+                        output.append(MSB_shifted)
+
+            # if MSB not = 1
+            except ValueError:
+                MSB_shifted = MSB_output.shift_right()
+                output.append(MSB_shifted)
+
+        result_sum = Polynomial2([0])
+
+        for index, coeff in enumerate(self.coeffs):
+            if coeff == 1:
+                result_sum = result_sum.add(output[index])
+
+        return result_sum
+
+    @property
+    def deg(self):
+        return len(self.coeffs) - 1
+
+    @property
+    def lc(self):
+        return self.coeffs[-1]
+
         pass
 
     def div(self,p2):
+        q,r = Polynomial2([0]), deepcopy(self)
+
+        b,c = p2, p2.lc
+        
+        if (r.deg >= p2.deg):
+            s = Polynomial2([0 for i in range(r.deg - p2.deg)] + [1])
+            q = s.add(q)
+            r = r.sub(s.mul(b))
         pass
         return q, r
 
     def __str__(self):
+        output = ""
+
+        for index, coeff in enumerate(self.coeffs[::-1]):
+            if (len(self.coeffs)-index-1) == 0 and coeff == 1: output += f"1"
+            elif (len(self.coeffs)-index-2) == 1: output += f"x+"
+            elif coeff == 1 and (len(self.coeffs)-index-1) != 1:
+                    output += f"x^{len(self.coeffs)-index-1}+"
+        
+        return output.strip("+")
         pass
 
     def getInt(p):
+        for index,coeff in enumerate(self.coeffs):
+            result += coeff * (2**index)
+            
+        return result
         pass
 
 
@@ -37,33 +113,98 @@ class GF2N:
                [0,0,0,1,1,1,1,1]]
 
     def __init__(self,x,n=8,ip=Polynomial2([1,1,0,1,1,0,0,0,1])):
+        self.x=x
+        self.n=n
+        self.ip=ip
         pass
-
 
     def add(self,g2):
+        p1 = self.getPolynomial2()
+        p2 = g2.getPolynomial2()
+        result = p1.add(p2)
+        result = result.modp(self.ip)
+
+        return GF2N(result.getInt(),self.n,self.ip)
         pass
+
     def sub(self,g2):
+        return self.add(g2.p)
         pass
     
     def mul(self,g2):
+        p1 = self.getPolynomial2()
+        p2 = g2.getPolynomial2()
+        result = p1.mul(p2,self.ip)
+        
+        return GF2N(result.getInt(),self.n,self.ip)
         pass
 
     def div(self,g2):
+        p1 = self.getPolynomial2()
+        p2 = g2.getPolynomial2()
+
+        q,r = p1.div(p2)
+        q,r = q.getInt(), r.getInt()
+        return GF2N(q,self.n,self.ip), GF2N(r,self.n,self.ip)
         pass
 
     def getPolynomial2(self):
+        binary = bin(self.x) [2:]
+        polynomial = Polynomial2([int(x) for x in binary][::-1])
+
+        return polynomial
         pass
 
     def __str__(self):
+        return str(self.getPolynomial2().getInt())
         pass
 
     def getInt(self):
+        return self.get.getPolynomial2().getInt()
         pass
 
+
+    def egcd(a,b):
+        """
+        extended euclid's algorithm
+        """
+        if a == 0: return (b, 0, 1)
+        else:
+            g, y, x = GF2N.egcd(b % a, a)
+            return (g, x - (b // a) * y, y)
+
     def mulInv(self):
+        irreduciable_polynomial = self.ip.getInt()
+        reduction_polynomial = self.getPolynomial2().getInt()
+
+        t1, t2 = Polynomial2([0]), Polynomial2([1])
+
+        r1,reduction_polynomial,t1 = GF2N.egcd(irreduciable_polynomial,reduction_polynomial)
+
+        if (r1 == 1):
+            return GF2N(t1, self.n, self.ip)
+
+        if (self.x == 0):
+            return GF2N(0, self.n, self.ip)
         pass
 
     def affineMap(self):
+        rhs = [1,1,0,0,0,1,1,0]
+        b_prime = self.getPolynomial2().coeffs
+        result = []
+        index = 0
+        for bit_array in self.affinemat:
+            new_array = []
+            for x_i, y_i in zip(bit_array, b_prime):
+                new_array.append(x_i & y_i )
+
+            res = 0
+            for bit in new_array:
+                res = res ^ bit
+            res = res ^ rhs[index]
+            result.append(res)
+            index += 1
+        return GF2N(Polynomial2(result).getInt(), self.n, self.ip)
         pass
 
 print '\nTest 1'
