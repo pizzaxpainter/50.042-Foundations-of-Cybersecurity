@@ -1,0 +1,12 @@
+Part II:
+
+1. In the real world, keys can be exchanged using various secure messaging protocols, secure file transfers or in person exchange as well. However, it is crucial to use a secure channel for exchanging keys. A seccure channel protects the message against evesdropping, data tampering and unauthorised acess to keys. 
+
+2. 
+The advantages of Deffie-Hellman Key Exchange is as follows:
+    - Key Agreement: It allows two parties to establish a shared key over an insecure channel without prior knowledge of each other's keys.
+    - Scalability: DHKE can be easily extended to support multiple parties, enabling secure group communication. 
+
+The disadvantages of Deffie-Hellman Key Exchange is as follows:
+    - Man-in-the-middle attack: DHKE alone cannot provide authentication of the communicating parties, making it a vulnerable to "man-in-the-middle" attacks. This is a case where an advresary intercepts and alters the key exchange process. Digital signatures or certificates are required to mitigate this risk. 
+    - It cannot be used for asymmetric key exchange.

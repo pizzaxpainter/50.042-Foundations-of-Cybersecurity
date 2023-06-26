@@ -1,24 +1,35 @@
 # 50.042 FCS Lab 6 template
-# Year 2021
+# Year 2023
 
 import primes
 import random
 
 
 def dhke_setup(nb):
+    '''
+    Method 1: Using my own functions
+    '''
+    # Generate an 80 bit prime number 
+    p = primes.gen_prime_nbits(nb)
+    alpha = random.randint(2, p-2)
+    '''
+    Method 2: Using Wolfram Alpha's number
+    '''
+    return p, alpha
     pass
-
 
 def gen_priv_key(p):
     pass
-
+    a = random.randint(2, p-2)
+    return a
 
 def get_pub_key(alpha, a, p):
     pass
-
+    return primes.square_multiply(alpha, a, p) 
 
 def get_shared_key(keypub, keypriv, p):
     pass
+    return primes.square_multiply(keypub, keypriv, p) # (keypub ** keypriv) % p
 
 
 if __name__ == "__main__":
