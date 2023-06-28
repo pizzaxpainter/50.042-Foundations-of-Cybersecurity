@@ -52,11 +52,11 @@ def baby_giant(alpha, beta, p):
 
 
 if __name__ == "__main__":
-
+    """
     test 1
     My private key is:  264
     Test other private key is:  7265
-    
+    """
     p = 17851
     alpha = 17511
     A = 2945
