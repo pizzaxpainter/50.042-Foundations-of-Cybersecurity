@@ -1,0 +1,5 @@
+Question: Explain one limitation of using RSA attacks
+ 
+Answer: 
+RSA is an intensive computation algorithm. It is very slow compared to other algorithms especially for large amounts of data and on low-end devices. 
+The high security of RSA relies on factoring large integers which makes it difficult for attackers to break the encryption. 
