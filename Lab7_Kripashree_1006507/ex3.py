@@ -3,6 +3,15 @@
 #Multiply the two numbers: m ≡ y × ys mod n 4. 
 #Decrypt using the private key from the previous part.
 from Crypto.PublicKey import RSA
+# # import file paths
+# import os
+
+# abs_path = os.path.abspath(__file__)
+# rel_path_pub = "mykey.pem.pub"
+# rel_path_priv = "mykey.pem.priv"
+# path_pub = os.path.join(abs_path, rel_path_pub)
+# path_priv = os.path.join(abs_path, rel_path_priv)
+
 
 def square_multiply(a,x,n):
     y = 1
@@ -23,14 +32,14 @@ def decrypt(x,d,n):
 
 
 # public key
-key1 = open('mykey.pem.pub','r').read()
+key1 = open("mykey.pem.pub",'r').read()
 rsakey_pub = RSA.importKey(key1)
 print("public key")
 print(f"rsakey.n : ,{rsakey_pub.n}")
 print(f"rsakey.e : {rsakey_pub.e}")
 
 # private key
-key2 = open('mykey.pem.priv','r').read()
+key2 = open("mykey.pem.priv",'r').read()
 rsakey_priv = RSA.importKey(key2)
 print("private key")
 print(f"rsakey.n : {rsakey_priv.n}")
