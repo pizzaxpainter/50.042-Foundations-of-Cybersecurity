@@ -43,11 +43,11 @@ message = open('message.txt', 'r').read()
 
 def encrypt_string(message, e, n):
 
-    encode_message = encodebytes(message.encode())
-    encode_message_int = get_int_from_byte(encode_message)
-    encrypted_message = encrypt(encode_message_int, e, n)
+    encode_msg = encodebytes(message.encode())
+    encode_msg_int = get_int_from_byte(encode_msg)
+    encrypted_msg = encrypt(encode_msg_int, e, n)
 
-    return encrypted_message
+    return encrypted_msg
 
 
 def decrypt_string(encoded_int, d, n):
@@ -57,13 +57,7 @@ def decrypt_string(encoded_int, d, n):
 
     return output.decode()
 
-
-#encoded_message = encrypt_string(message, rsakey_pub.e,rsakey_pub.n)
-#decrypted_message = decrypt_string(encoded_message,rsakey_priv.d, rsakey_priv.n)
-
 print(f"\nmessage: {message}")
-# print(f"message_encoded_int_encrypted: {message_encoded_int_encrypted}\n")
-# print(f"message_encoded_decrypted: {message_encoded_decrypted}\n")
 
 # sign and verify
 h = SHA256.new()
@@ -71,8 +65,10 @@ h.update(b'Hello')
 print(f"hash: {h.hexdigest()}")
 
 sha256_signed = encrypt_string(h.hexdigest(), rsakey_priv.d, rsakey_priv.n)
+print(f"signed hash: {sha256_signed}")
 sha256_verify = decrypt_string(sha256_signed, rsakey_pub.e, rsakey_pub.n)
-
 print(f"verified hash: {sha256_verify}")
-print("verifiying : h.hexdigest() == sha256_verify")
-print("verification result is ",h.hexdigest() == sha256_verify)
+
+
+
+
